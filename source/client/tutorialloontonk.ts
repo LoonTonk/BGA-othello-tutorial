@@ -85,9 +85,11 @@ class TutorialLoonTonk extends Gamegui
 		if (!player)
 			throw new Error( 'Unknown player id: ' + player_id );
 
+		
 		dojo.place( this.format_block( 'jstpl_token', {
-			x_y: `${x}_${y}`,
-			color: player.color
+			color: player.color,
+			back_color: 'FFFF00',
+			x_y: `${x}_${y}`
 		} ) , 'board' );
 
 		this.placeOnObject( `token_${x}_${y}`, `overall_player_board_${player_id}` );
@@ -228,16 +230,14 @@ class TutorialLoonTonk extends Gamegui
 	notif_turnOverDiscs( notif: NotifAs<'turnOverDiscs'> )
 	{
 		// Change the color of the turned over discs
-		for( var i in notif.args.turnedOver )
+		for( var i in notif.args.turnedOver ) // TODO: have new color be an arg
 		{
 			let token_data = notif.args.turnedOver[ i ]!;
 			let token = $<HTMLElement>( `token_${token_data.x}_${token_data.y}` );
-
 			if (!token)
 				throw new Error( `Unknown token element: ${token_data.x}_${token_data.y}. Make sure the board grid was set up correctly in the tpl file.` );
 
-			token.classList.toggle('tokencolor_cbcbcb');
-			token.classList.toggle('tokencolor_363636');
+			token.classList.toggle('flipped');
 		}
 	}
 

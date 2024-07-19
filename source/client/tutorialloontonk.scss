@@ -79,18 +79,24 @@
 
 .flipped > .token-flip { transform: rotateY(180deg); }
 
-.tokencolor_cbcbcb, .tokencolor_363636, .tokencolor_00FFFF, .tokencolor_FFFF00, .back-color_cbcbcb, .back-color_363636, .back-color_00FFFF, .back-color_FFFF00
- { position: absolute; width: 56px; height: 56px; -webkit-backface-visibility: hidden; backface-visibility: hidden; background-image: url('img/new_tokens.png'); }
+//.tokencolor_cbcbcb, .tokencolor_363636, .tokencolor_00FFFF, .tokencolor_FFFF00, .back-color_cbcbcb, .back-color_363636, .back-color_00FFFF, .back-color_FFFF00
+//.front, .back
+// { position: absolute; width: 56px; height: 56px; -webkit-backface-visibility: hidden; backface-visibility: hidden; background-image: url('img/new_tokens.png'); background-position: -56px 0px}
+
+.tokencolor_cbcbcb, .tokencolor_363636, .tokencolor_00FFFF, .tokencolor_FFFF00 {background-image: url('img/new_tokens.png'); width: 100%; height: 100%;
+     position: absolute; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+
+.back { transform: rotateY(180deg); }
 
 .tokencolor_cbcbcb { background-position: 0px 0px; } // White token
 .tokencolor_363636 { background-position: -56px 0px; } // Black token
 .tokencolor_00FFFF { background-position: -112px 0px; } // Blue token
 .tokencolor_FFFF00 { background-position: -168px 0px; } // Yellow token
 
-.back-color_cbcbcb { background-position: 0px 0px; transform: rotateY(180deg); } // White token
-.back-color_363636 { background-position: -56px 0px; transform: rotateY(180deg); } // Black token
-.back-color_00FFFF { background-position: -112px 0px; transform: rotateY(180deg); } // Blue token
-.back-color_FFFF00 { background-position: -168px 0px; transform: rotateY(180deg); } // Yellow token
+//.back-color_cbcbcb { background-position: 0px 0px; transform: rotateY(180deg); } // White token
+//.back-color_363636 { background-position: -56px 0px; transform: rotateY(180deg); } // Black token
+//.back-color_00FFFF { background-position: -112px 0px; transform: rotateY(180deg); } // Blue token
+//.back-color_FFFF00 { background-position: -168px 0px; transform: rotateY(180deg); } // Yellow token
 
 // This overrides the #board + .token- images when the .game_style_wooden is automatically added to the page (by the user preference).
 .game_style_wooden {

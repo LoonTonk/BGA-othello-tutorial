@@ -106,13 +106,6 @@ define("bgagame/tutorialloontonk", ["require", "exports", "ebg/core/gamegui", "e
             this.addTokenOnBoard(notif.args.x, notif.args.y, notif.args.player_id);
         };
         TutorialLoonTonk.prototype.notif_turnOverDiscs = function (notif) {
-            for (var i in notif.args.turnedOver) {
-                var token_data = notif.args.turnedOver[i];
-                var token = $("token_".concat(token_data.x, "_").concat(token_data.y));
-                if (!token)
-                    throw new Error("Unknown token element: ".concat(token_data.x, "_").concat(token_data.y, ". Make sure the board grid was set up correctly in the tpl file."));
-                token.classList.toggle('flipped');
-            }
         };
         TutorialLoonTonk.prototype.notif_newScores = function (notif) {
             for (var player_id in notif.args.scores) {

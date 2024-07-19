@@ -91,13 +91,17 @@
   transform: rotateY(180deg);
 }
 
-.tokencolor_cbcbcb, .tokencolor_363636, .tokencolor_00FFFF, .tokencolor_FFFF00, .back-color_cbcbcb, .back-color_363636, .back-color_00FFFF, .back-color_FFFF00 {
+.tokencolor_cbcbcb, .tokencolor_363636, .tokencolor_00FFFF, .tokencolor_FFFF00 {
+  background-image: url("img/new_tokens.png");
+  width: 100%;
+  height: 100%;
   position: absolute;
-  width: 56px;
-  height: 56px;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  background-image: url("img/new_tokens.png");
+}
+
+.back {
+  transform: rotateY(180deg);
 }
 
 .tokencolor_cbcbcb {
@@ -114,26 +118,6 @@
 
 .tokencolor_FFFF00 {
   background-position: -168px 0px;
-}
-
-.back-color_cbcbcb {
-  background-position: 0px 0px;
-  transform: rotateY(180deg);
-}
-
-.back-color_363636 {
-  background-position: -56px 0px;
-  transform: rotateY(180deg);
-}
-
-.back-color_00FFFF {
-  background-position: -112px 0px;
-  transform: rotateY(180deg);
-}
-
-.back-color_FFFF00 {
-  background-position: -168px 0px;
-  transform: rotateY(180deg);
 }
 
 .game_style_wooden #board {

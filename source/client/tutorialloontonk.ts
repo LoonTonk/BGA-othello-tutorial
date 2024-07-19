@@ -88,7 +88,7 @@ class TutorialLoonTonk extends Gamegui
 		
 		dojo.place( this.format_block( 'jstpl_token', {
 			color: player.color,
-			back_color: 'FFFF00',
+			back_color: 'FFFF00', // testing
 			x_y: `${x}_${y}`
 		} ) , 'board' );
 
@@ -229,7 +229,7 @@ class TutorialLoonTonk extends Gamegui
 
 	notif_turnOverDiscs( notif: NotifAs<'turnOverDiscs'> )
 	{
-		// Change the color of the turned over discs
+/* 		// Change the color of the turned over discs
 		for( var i in notif.args.turnedOver ) // TODO: have new color be an arg
 		{
 			let token_data = notif.args.turnedOver[ i ]!;
@@ -237,8 +237,45 @@ class TutorialLoonTonk extends Gamegui
 			if (!token)
 				throw new Error( `Unknown token element: ${token_data.x}_${token_data.y}. Make sure the board grid was set up correctly in the tpl file.` );
 
+			let token_front = $<HTMLElement>( `front_${token_data.x}_${token_data.y}` );
+			token_front?.classList.toggle('tokencolor_cbcbcb');
 			token.classList.toggle('flipped');
-		}
+		} */
+
+/* 		for (let i = 0; i < notif.args.prevDiscState.length; i++) {
+			const prev_token_data = notif.args.prevDiscState[i];
+			if (prev_token_data === undefined) {
+				throw new Error("Prev token data is undefined");
+			}
+			const curr_token_data = notif.args.currDiscState[i];
+			if (curr_token_data === undefined) {
+				throw new Error("Curr token data is undefined");
+			}
+			const token = $<HTMLElement>( `token_${prev_token_data.board_x}_${prev_token_data.board_y}` );
+			if (token === null) {
+				throw new Error("Token is null");
+			}
+			const player = prev_token_data.board_player;
+			const bottom_side = token.classList.contains('flipped') ? "front" : "back"; // Token bottom side is front if flipped, back if not flipped
+			const token_bottom = $<HTMLElement>( `${bottom_side}_${prev_token_data.board_x}_${prev_token_data.board_y}` );
+			if (token_bottom === null) {
+				throw new Error("token_bottom is null");
+			}
+			const player_colors = notif.args.playerColors;
+			for (let i = 0; i < player_colors.length; i++) {
+				const color = player_colors[i]!.color;
+				token_bottom.classList.remove("tokencolor_" + color);
+			}
+			let added_color = "";
+			for (let i = 0; i < player_colors.length; i++) {
+				const id = player_colors[i]!.id;
+				if (id === curr_token_data.board_player) {
+					added_color += player_colors[i]!.color;
+				}
+			token_bottom.classList.add("tokencolor_" + added_color);
+			token.classList.toggle('flipped');
+			}
+		}  */
 	}
 
 	notif_newScores( notif: NotifAs<'newScores'> )

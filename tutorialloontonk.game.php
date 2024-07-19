@@ -309,22 +309,26 @@ class TutorialLoonTonk extends Table
 
         // This move is possible!
 
-        //$result =  array();
-        //$sql = "SELECT board_x, board_y FROM board WHERE (board_x, board_y) IN (";
-        //foreach( $turnedOverDiscs as $turnedOver )
-            //$sql .= "('".$turnedOver['x']."','".$turnedOver['y']."'),";
-        //$sql .= "('$x','$y'))";
-        //$result['prevDiscState'] = $this->getCollectionFromDb( $sql );
+        $prevDiscState = $this->getDiscState($turnedOverDiscs);
+        $this->dump( 'result', $prevDiscState ); // remove later
         // Let's place a disc at x,y and return all "$returned" discs to the active player
         // $other_id = self::getUniqueValueFromDb( "SELECT player_id FROM player WHERE player_id!='$player_id'" ); // TODO: fix for > 2 players
         // something something something if it's bombs every disc in turnedoverDiscs gets flipped to the next player's disc
         if($this->gamestate->table_globals[100] == 1) // Classic mode
             $sql = "UPDATE board SET board_player = '$player_id' WHERE (board_x, board_y) IN (";
+        else 
+            throw new BgaSystemException("Bombs not implemented yet :')");
+
+        //$other_id = self::getUniqueValueFromDb( "SELECT player_id FROM player WHERE player_id!='$player_id'" );
+        //$sql = "UPDATE board SET board_player = CASE WHEN board_player = '$player_id' THEN '$other_id' ELSE '$player_id' END WHERE (board_x, board_y) IN (";
         foreach( $turnedOverDiscs as $turnedOver )
             $sql .= "('".$turnedOver['x']."','".$turnedOver['y']."'),";
         $sql .= "('$x','$y') ) ";
 
         self::DbQuery( $sql );
+
+        $currDiscState = $this->getDiscState($turnedOverDiscs);
+        $this->dump( 'currDiscState', $currDiscState );
 
         // Update scores according to the number of disc on board
         $sql = "UPDATE player
@@ -341,12 +345,14 @@ class TutorialLoonTonk extends Table
             'x' => $x,
             'y' => $y
         ) );
-
-        foreach( $turnedOverDiscs as $turnedOver ) // TODO
             
+        $this->dump( 'turnedOverDiscs', $turnedOverDiscs );
         self::notifyAllPlayers( "turnOverDiscs", '', array(
             'player_id' => $player_id,
-            'turnedOver' => $turnedOverDiscs
+            'prevDiscState' => $prevDiscState,
+            'currDiscState' => $currDiscState,
+            'turnedOver' => $turnedOverDiscs,
+            'playerColors' =>$this->getIdToPlayerColors()
         ) );
 
         // Statistics
@@ -364,6 +370,31 @@ class TutorialLoonTonk extends Table
         ) );
         // Then, go to the next state
         $this->gamestate->nextState( 'playDisc' );
+    }
+
+    // Gets the current state of all the $turnedOverDiscs and returns it as an associative array
+    function getDiscState( $turnedOverDiscs )
+    {
+        $sql = "SELECT board_x, board_y, board_player FROM board WHERE (board_x, board_y) IN (";
+        for ($i = 0; $i < count($turnedOverDiscs); $i++)
+            $turnedOver = $turnedOverDiscs[$i];
+            $sql .= "('".$turnedOver['x']."','".$turnedOver['y']."')";
+            if ($i < count($turnedOverDiscs) - 1) {
+                $sql .= ",";
+            }
+        $sql .= ")";
+        return $this->getObjectListFromDB( $sql );
+    }
+
+    // Makes an array mapping player id to their color
+    function getIdToPlayerColors() {
+        $player_ids =  array_keys($this->loadPlayersBasicInfos());
+        $player_colors = [];
+        foreach ($player_ids as $id) {
+            $player_colors[] = array('id' => $id, 'color' => $this->getPlayerColorById($id));
+        }
+        $this->dump( 'playerColors', $player_colors);
+        return $player_colors;
     }
 
     /*

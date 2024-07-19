@@ -36,7 +36,7 @@
 <script type="text/javascript">
 
 var jstpl_token = 
-'<div class="token-container" id="token_${x_y}"><div class="token-flip"><div class="tokencolor_${color}"></div><div class="back-color_${back_color}"></div></div></div>';
+'<div class="token-container" id="token_${x_y}"><div class="token-flip"><div class="front tokencolor_${color}" id="front_${x_y}"></div><div class="back tokencolor_${back_color}" id="back_${x_y}"></div></div></div>';
 
 // Javascript HTML templates
 

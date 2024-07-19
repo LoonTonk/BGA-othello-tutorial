@@ -53,8 +53,9 @@ define("bgagame/tutorialloontonk", ["require", "exports", "ebg/core/gamegui", "e
             if (!player)
                 throw new Error('Unknown player id: ' + player_id);
             dojo.place(this.format_block('jstpl_token', {
-                x_y: "".concat(x, "_").concat(y),
-                color: player.color
+                color: player.color,
+                back_color: 'FFFF00',
+                x_y: "".concat(x, "_").concat(y)
             }), 'board');
             this.placeOnObject("token_".concat(x, "_").concat(y), "overall_player_board_".concat(player_id));
             this.slideToObject("token_".concat(x, "_").concat(y), "square_".concat(x, "_").concat(y)).play();
@@ -110,8 +111,7 @@ define("bgagame/tutorialloontonk", ["require", "exports", "ebg/core/gamegui", "e
                 var token = $("token_".concat(token_data.x, "_").concat(token_data.y));
                 if (!token)
                     throw new Error("Unknown token element: ".concat(token_data.x, "_").concat(token_data.y, ". Make sure the board grid was set up correctly in the tpl file."));
-                token.classList.toggle('tokencolor_cbcbcb');
-                token.classList.toggle('tokencolor_363636');
+                token.classList.toggle('flipped');
             }
         };
         TutorialLoonTonk.prototype.notif_newScores = function (notif) {

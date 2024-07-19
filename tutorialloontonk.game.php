@@ -309,9 +309,17 @@ class TutorialLoonTonk extends Table
 
         // This move is possible!
 
+        //$result =  array();
+        //$sql = "SELECT board_x, board_y FROM board WHERE (board_x, board_y) IN (";
+        //foreach( $turnedOverDiscs as $turnedOver )
+            //$sql .= "('".$turnedOver['x']."','".$turnedOver['y']."'),";
+        //$sql .= "('$x','$y'))";
+        //$result['prevDiscState'] = $this->getCollectionFromDb( $sql );
         // Let's place a disc at x,y and return all "$returned" discs to the active player
-        $other_id = self::getUniqueValueFromDb( "SELECT player_id FROM player WHERE player_id!='$player_id'" );
-        $sql = "UPDATE board SET board_player = CASE WHEN board_player = '$player_id' THEN '$other_id' ELSE '$player_id' END WHERE (board_x, board_y) IN (";
+        // $other_id = self::getUniqueValueFromDb( "SELECT player_id FROM player WHERE player_id!='$player_id'" ); // TODO: fix for > 2 players
+        // something something something if it's bombs every disc in turnedoverDiscs gets flipped to the next player's disc
+        if($this->gamestate->table_globals[100] == 1) // Classic mode
+            $sql = "UPDATE board SET board_player = '$player_id' WHERE (board_x, board_y) IN (";
         foreach( $turnedOverDiscs as $turnedOver )
             $sql .= "('".$turnedOver['x']."','".$turnedOver['y']."'),";
         $sql .= "('$x','$y') ) ";
@@ -334,6 +342,8 @@ class TutorialLoonTonk extends Table
             'y' => $y
         ) );
 
+        foreach( $turnedOverDiscs as $turnedOver ) // TODO
+            
         self::notifyAllPlayers( "turnOverDiscs", '', array(
             'player_id' => $player_id,
             'turnedOver' => $turnedOverDiscs
@@ -410,7 +420,7 @@ function stNextPlayer()
             $this->gamestate->nextState( 'endGame' );
             return ;
         }
-        else if( ! isset( $player_to_discs[ $player_id ] ) )
+        else if( ! isset( $player_to_discs[ $player_id ] ) ) // TODO: Change so player is out, game does not end until one player left
         {
             // Active player has no more disc on the board => he looses immediately
             $this->gamestate->nextState( 'endGame' );
@@ -424,7 +434,7 @@ function stNextPlayer()
         {
             // This player can't play
             // Can his opponent play ?
-            $opponent_id = self::getUniqueValueFromDb( "SELECT player_id FROM player WHERE player_id!='$player_id' " );
+            $opponent_id = self::getUniqueValueFromDb( "SELECT player_id FROM player WHERE player_id!='$player_id' " ); // TODO: Change this to work for > 2 players
             if( count( self::getPossibleMoves( $opponent_id ) ) == 0 )
             {
                 // Nobody can move => end of the game

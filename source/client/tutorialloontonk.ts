@@ -88,7 +88,7 @@ class TutorialLoonTonk extends Gamegui
 		
 		dojo.place( this.format_block( 'jstpl_token', {
 			color: player.color,
-			back_color: 'FFFF00', // testing
+			back_color: player.color,
 			x_y: `${x}_${y}`
 		} ) , 'board' );
 
@@ -242,7 +242,8 @@ class TutorialLoonTonk extends Gamegui
 			token.classList.toggle('flipped');
 		} */
 
-/* 		for (let i = 0; i < notif.args.prevDiscState.length; i++) {
+		for (let i = 0; i < notif.args.prevDiscState.length; i++) {
+			console.log(notif.args.prevDiscState.length);
 			const prev_token_data = notif.args.prevDiscState[i];
 			if (prev_token_data === undefined) {
 				throw new Error("Prev token data is undefined");
@@ -255,6 +256,7 @@ class TutorialLoonTonk extends Gamegui
 			if (token === null) {
 				throw new Error("Token is null");
 			}
+			console.log(prev_token_data); //
 			const player = prev_token_data.board_player;
 			const bottom_side = token.classList.contains('flipped') ? "front" : "back"; // Token bottom side is front if flipped, back if not flipped
 			const token_bottom = $<HTMLElement>( `${bottom_side}_${prev_token_data.board_x}_${prev_token_data.board_y}` );
@@ -265,17 +267,21 @@ class TutorialLoonTonk extends Gamegui
 			for (let i = 0; i < player_colors.length; i++) {
 				const color = player_colors[i]!.color;
 				token_bottom.classList.remove("tokencolor_" + color);
+				console.log("tokencolor_" + color);
 			}
 			let added_color = "";
 			for (let i = 0; i < player_colors.length; i++) {
 				const id = player_colors[i]!.id;
-				if (id === curr_token_data.board_player) {
+				console.log("ID " + id + " board player " + curr_token_data.board_player);
+				if (id.toString() === curr_token_data.board_player.toString()) {
+					console.log("added color: " + player_colors[i]!.color);
 					added_color += player_colors[i]!.color;
 				}
+			}
 			token_bottom.classList.add("tokencolor_" + added_color);
 			token.classList.toggle('flipped');
-			}
-		}  */
+			console.log(token_bottom.classList);
+		} 
 	}
 
 	notif_newScores( notif: NotifAs<'newScores'> )

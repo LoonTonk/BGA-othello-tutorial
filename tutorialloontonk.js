@@ -54,7 +54,7 @@ define("bgagame/tutorialloontonk", ["require", "exports", "ebg/core/gamegui", "e
                 throw new Error('Unknown player id: ' + player_id);
             dojo.place(this.format_block('jstpl_token', {
                 color: player.color,
-                back_color: 'FFFF00',
+                back_color: player.color,
                 x_y: "".concat(x, "_").concat(y)
             }), 'board');
             this.placeOnObject("token_".concat(x, "_").concat(y), "overall_player_board_".concat(player_id));
@@ -106,6 +106,46 @@ define("bgagame/tutorialloontonk", ["require", "exports", "ebg/core/gamegui", "e
             this.addTokenOnBoard(notif.args.x, notif.args.y, notif.args.player_id);
         };
         TutorialLoonTonk.prototype.notif_turnOverDiscs = function (notif) {
+            for (var i = 0; i < notif.args.prevDiscState.length; i++) {
+                console.log(notif.args.prevDiscState.length);
+                var prev_token_data = notif.args.prevDiscState[i];
+                if (prev_token_data === undefined) {
+                    throw new Error("Prev token data is undefined");
+                }
+                var curr_token_data = notif.args.currDiscState[i];
+                if (curr_token_data === undefined) {
+                    throw new Error("Curr token data is undefined");
+                }
+                var token = $("token_".concat(prev_token_data.board_x, "_").concat(prev_token_data.board_y));
+                if (token === null) {
+                    throw new Error("Token is null");
+                }
+                console.log(prev_token_data);
+                var player = prev_token_data.board_player;
+                var bottom_side = token.classList.contains('flipped') ? "front" : "back";
+                var token_bottom = $("".concat(bottom_side, "_").concat(prev_token_data.board_x, "_").concat(prev_token_data.board_y));
+                if (token_bottom === null) {
+                    throw new Error("token_bottom is null");
+                }
+                var player_colors = notif.args.playerColors;
+                for (var i_1 = 0; i_1 < player_colors.length; i_1++) {
+                    var color = player_colors[i_1].color;
+                    token_bottom.classList.remove("tokencolor_" + color);
+                    console.log("tokencolor_" + color);
+                }
+                var added_color = "";
+                for (var i_2 = 0; i_2 < player_colors.length; i_2++) {
+                    var id = player_colors[i_2].id;
+                    console.log("ID " + id + " board player " + curr_token_data.board_player);
+                    if (id.toString() === curr_token_data.board_player.toString()) {
+                        console.log("added color: " + player_colors[i_2].color);
+                        added_color += player_colors[i_2].color;
+                    }
+                }
+                token_bottom.classList.add("tokencolor_" + added_color);
+                token.classList.toggle('flipped');
+                console.log(token_bottom.classList);
+            }
         };
         TutorialLoonTonk.prototype.notif_newScores = function (notif) {
             for (var player_id in notif.args.scores) {

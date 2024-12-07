@@ -304,19 +304,31 @@ class TutorialLoonTonk extends Table
         $player_id = self::getActivePlayerId();
         $turnedOverDiscs = self::getTurnedOverDiscs( $x, $y, $player_id, $board );
 
-        if( count( $turnedOverDiscs ) <= 0 )
-            throw new BgaSystemException( "Impossible move" );
+        if( count( $turnedOverDiscs ) <= 0 && $this->getGameInfos()['players'] === 2)
+            throw new BgaSystemException( "Impossible move" ); // If there are more than 2 players, rules are slightly modified so it is a legal move
 
         // This move is possible!
 
+        $prevDiscState = $this->getDiscState($turnedOverDiscs);
+        $this->dump( 'prevDiscState', $prevDiscState ); // remove later
         // Let's place a disc at x,y and return all "$returned" discs to the active player
-        $other_id = self::getUniqueValueFromDb( "SELECT player_id FROM player WHERE player_id!='$player_id'" );
-        $sql = "UPDATE board SET board_player = CASE WHEN board_player = '$player_id' THEN '$other_id' ELSE '$player_id' END WHERE (board_x, board_y) IN (";
+        // $other_id = self::getUniqueValueFromDb( "SELECT player_id FROM player WHERE player_id!='$player_id'" ); // TODO: fix for > 2 players
+        // something something something if it's bombs every disc in turnedoverDiscs gets flipped to the next player's disc
+        if($this->gamestate->table_globals[100] == 1) // Classic mode
+            $sql = "UPDATE board SET board_player = '$player_id' WHERE (board_x, board_y) IN (";
+        else 
+            throw new BgaSystemException("Bombs not implemented yet :')");
+
+        //$other_id = self::getUniqueValueFromDb( "SELECT player_id FROM player WHERE player_id!='$player_id'" );
+        //$sql = "UPDATE board SET board_player = CASE WHEN board_player = '$player_id' THEN '$other_id' ELSE '$player_id' END WHERE (board_x, board_y) IN (";
         foreach( $turnedOverDiscs as $turnedOver )
             $sql .= "('".$turnedOver['x']."','".$turnedOver['y']."'),";
         $sql .= "('$x','$y') ) ";
 
         self::DbQuery( $sql );
+
+        $currDiscState = $this->getDiscState($turnedOverDiscs);
+        $this->dump( 'currDiscState', $currDiscState );
 
         // Update scores according to the number of disc on board
         $sql = "UPDATE player
@@ -333,10 +345,14 @@ class TutorialLoonTonk extends Table
             'x' => $x,
             'y' => $y
         ) );
-
+            
+        $this->dump( 'turnedOverDiscs', $turnedOverDiscs );
         self::notifyAllPlayers( "turnOverDiscs", '', array(
             'player_id' => $player_id,
-            'turnedOver' => $turnedOverDiscs
+            'prevDiscState' => $prevDiscState,
+            'currDiscState' => $currDiscState,
+            'turnedOver' => $turnedOverDiscs,
+            'playerColors' =>$this->getIdToPlayerColors()
         ) );
 
         // Statistics
@@ -354,6 +370,30 @@ class TutorialLoonTonk extends Table
         ) );
         // Then, go to the next state
         $this->gamestate->nextState( 'playDisc' );
+    }
+
+    // Gets the current state of all the $turnedOverDiscs and returns it as an associative array, if no discs were turned over returns an empty array
+    function getDiscState( $turnedOverDiscs )
+    {
+        if (count($turnedOverDiscs) > 0) {
+            $sql = "SELECT board_x, board_y, board_player FROM board WHERE (board_x, board_y) IN (";
+            foreach( $turnedOverDiscs as $turnedOver )
+                $sql .= "('".$turnedOver['x']."','".$turnedOver['y']."'),";
+            $sql = substr($sql, 0, -1) . ")"; // Removes the last character
+            return $this->getObjectListFromDB( $sql );
+        }
+            return array();
+    }
+
+    // Makes an array mapping player id to their color
+    function getIdToPlayerColors() {
+        $player_ids =  array_keys($this->loadPlayersBasicInfos());
+        $player_colors = [];
+        foreach ($player_ids as $id) {
+            $player_colors[] = array('id' => $id, 'color' => $this->getPlayerColorById($id));
+        }
+        $this->dump( 'playerColors', $player_colors);
+        return $player_colors;
     }
 
     /*
@@ -413,8 +453,14 @@ function stNextPlayer()
         else if( ! isset( $player_to_discs[ $player_id ] ) )
         {
             // Active player has no more disc on the board => he looses immediately
-            $this->gamestate->nextState( 'endGame' );
-            return ;
+            //$this->gamestate->nextState( 'endGame' );
+            if ($this->getGameInfos()['players'] === 2) {
+                $this->gamestate->nextState( 'endGame' ); // If two players and one player has no discs left, end game
+                return;
+            } else {
+                $this->gamestate->nextState( 'nextTurn' );
+                return; // If more than 2 players, game does not end when one player has no discs
+            }
         }
 
         // Can this player play?
@@ -423,35 +469,65 @@ function stNextPlayer()
         if( count( $possibleMoves ) == 0 )
         {
             // This player can't play
-            // Can his opponent play ?
-            $opponent_id = self::getUniqueValueFromDb( "SELECT player_id FROM player WHERE player_id!='$player_id' " );
-            if( count( self::getPossibleMoves( $opponent_id ) ) == 0 )
-            {
-                // Nobody can move => end of the game
-                $this->gamestate->nextState( 'endGame' );
+            // Can his opponent(s) play ?
+            $player_ids =  array_keys($this->loadPlayersBasicInfos());
+            foreach ($player_ids as $player_id) {
+                if( count( self::getPossibleMoves( $player_id ) ) !== 0 ) {
+                    // => pass his turn, somebody can still play
+                    $this->gamestate->nextState( 'cantPlay' );
+                    return;
+                }
             }
-            else
-            {            
-                // => pass his turn
-                $this->gamestate->nextState( 'cantPlay' );
-            }
+            // Nobody can move => end of the game
+            $this->gamestate->nextState( 'endGame' );
+            return;
         }
         else
         {
             // This player can play. Give him some extra time
             self::giveExtraTime( $player_id );
             $this->gamestate->nextState( 'nextTurn' );
+            return;
         }
     }
 
     function argPlayerTurn()
     {
-        $possibleMoves = self::getPossibleMoves( self::getActivePlayerId() );
-        return array(
-            'possibleMoves' => $possibleMoves
-        );
+        $playerId = self::getActivePlayerId();
+        $result = $this->getCollectionFromDB( "SELECT board_player id FROM board WHERE (board_player) IN (" .$playerId .")" );
+        if (count($result) === 0 && $this->getGameInfos()['players'] !== 2) { // no tokens left for player, if not 2 player game they can play anywhere
+            return array(
+                'possibleMoves' => $this->getEmptySquares()
+            );
+        } else {
+            $possibleMoves = self::getPossibleMoves( self::getActivePlayerId() );
+            return array(
+                'possibleMoves' => $possibleMoves
+            );
+        }
     }
 
+    function getEmptySquares()
+    {
+        $result = array();
+
+        $board = self::getBoard();
+
+        for( $x=1; $x<=8; $x++ )
+        {
+            for( $y=1; $y<=8; $y++ )
+            {
+                if( $board[$x][$y] === null )
+                {
+                    if( ! isset( $result[$x] ) ) {
+                        $result[$x] = array();
+                    }
+                    $result[$x][$y] = true;
+                }
+            }
+        }
+        return $result;
+    }
     /*
     
     Example for game state "MyGameState":

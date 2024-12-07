@@ -63,18 +63,6 @@
     background-color: red;
 }
 
-// Same as square, but matching the token size/image.
-.token {
-    width: 56px;
-    height: 56px;
-    position: absolute;
-    background-image: url('img/tokens.png');
-}
-// For clarity, but doesn't actually do anything.
-.tokencolor_cbcbcb { background-position: 0px 0px; }
-// Translate the background the exact size of the white token, so the black one shows instead.
-.tokencolor_363636 { background-position: -56px 0px; }
-
 .possibleMove {
     background-color: rgba(255, 255, 255, 0.15);
     cursor: pointer;
@@ -89,13 +77,26 @@
 
 .token-flip { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 1.2s; transform-style: preserve-3d; border-radius:50%; box-shadow: 0 4px 8px 0 rgba(0,0,0,0.25); }
 
-.tokencolor_363636 > .token-flip { transform: rotateY(180deg); }
+.flipped > .token-flip { transform: rotateY(180deg); }
 
-.token-white, .token-black { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; background-image: url('img/tokens.png'); }
+//.tokencolor_cbcbcb, .tokencolor_363636, .tokencolor_00FFFF, .tokencolor_FFFF00, .back-color_cbcbcb, .back-color_363636, .back-color_00FFFF, .back-color_FFFF00
+//.front, .back
+// { position: absolute; width: 56px; height: 56px; -webkit-backface-visibility: hidden; backface-visibility: hidden; background-image: url('img/new_tokens.png'); background-position: -56px 0px}
 
-.token-white { background-position: 0px 0px; }
+.tokencolor_cbcbcb, .tokencolor_363636, .tokencolor_00FFFF, .tokencolor_FFFF00 {background-image: url('img/new_tokens.png'); width: 100%; height: 100%;
+     position: absolute; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
 
-.token-black { background-position: -56px 0px; transform: rotateY(180deg); }
+.back { transform: rotateY(180deg); }
+
+.tokencolor_cbcbcb { background-position: 0px 0px; } // White token
+.tokencolor_363636 { background-position: -56px 0px; } // Black token
+.tokencolor_00FFFF { background-position: -112px 0px; } // Blue token
+.tokencolor_FFFF00 { background-position: -168px 0px; } // Yellow token
+
+//.back-color_cbcbcb { background-position: 0px 0px; transform: rotateY(180deg); } // White token
+//.back-color_363636 { background-position: -56px 0px; transform: rotateY(180deg); } // Black token
+//.back-color_00FFFF { background-position: -112px 0px; transform: rotateY(180deg); } // Blue token
+//.back-color_FFFF00 { background-position: -168px 0px; transform: rotateY(180deg); } // Yellow token
 
 // This overrides the #board + .token- images when the .game_style_wooden is automatically added to the page (by the user preference).
 .game_style_wooden {

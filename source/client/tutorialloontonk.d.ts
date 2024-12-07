@@ -17,7 +17,10 @@ declare global {
 		'playDisc': { x: number, y: number, player_id: number };
 		'turnOverDiscs': {
 			player_id: number,
-			turnedOver: { x: number, y: number }[]
+			prevDiscState: {board_x: string, board_y: string, board_player: string}[],
+            currDiscState: {board_x: string, board_y: string, board_player: string}[],
+			turnedOver: { x: number, y: number }[],
+			playerColors: { id: string, color: string }[]
 		},
 		'newScores': { scores: Record<number, number> };
 	}
